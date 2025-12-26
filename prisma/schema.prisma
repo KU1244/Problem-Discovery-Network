@@ -1,14 +1,62 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// prisma/schema.prisma
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// ↓ これらのモデルがあるか確認！
+enum ProblemStatus {
+  draft
+  published
+}
+
+enum SolutionStatus {
+  draft
+  published
+}
+
+enum SolutionVariant {
+  direct
+  friendly
+  professional
+}
+
+enum SolutionLength {
+  standard
+  short
+  max220
+}
+
+model Problem {
+  id        String        @id @default(uuid())
+  slug      String        @unique
+  title     String
+  scope     String        @default("upwork")
+  status    ProblemStatus @default(draft)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  solutions Solution[]
+}
+
+model Solution {
+  id               String          @id @default(uuid())
+  problemId        String
+  problem          Problem         @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  variant          SolutionVariant
+  length           SolutionLength  @default(standard)
+  content          String          @db.Text
+  status           SolutionStatus  @default(draft)
+  copyCount        Int             @default(0)
+  triedCount       Int             @default(0)
+  workedCount      Int             @default(0)
+  noChangeCount    Int             @default(0)
+  needShorterCount Int             @default(0)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@unique([problemId, variant, length])
 }
