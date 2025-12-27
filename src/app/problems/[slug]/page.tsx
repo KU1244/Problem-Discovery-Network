@@ -7,11 +7,14 @@ import { getPublishedProblemBySlug } from "@/lib/pdn/queries";
 export const dynamic = "force-dynamic";
 
 type Props = {
-    params: { slug: string };
+    // Next.js 16+ で Promise 扱いになるケースがあるため await で吸収します
+    params: { slug: string } | Promise<{ slug: string }>;
 };
 
 export default async function ProblemDetailPage({ params }: Props) {
-    const problem = await getPublishedProblemBySlug(params.slug);
+    const { slug } = await params;
+
+    const problem = await getPublishedProblemBySlug(slug);
 
     if (!problem) notFound();
 
