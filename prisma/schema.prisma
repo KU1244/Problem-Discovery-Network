@@ -1,4 +1,4 @@
-// prisma/schema.prisma
+// FILE: prisma/schema.prisma
 
 generator client {
   provider = "prisma-client-js"
@@ -8,7 +8,6 @@ datasource db {
   provider = "postgresql"
 }
 
-// ↓ これらのモデルがあるか確認！
 enum ProblemStatus {
   draft
   published

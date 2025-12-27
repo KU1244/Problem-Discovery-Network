@@ -1,3 +1,4 @@
+// FILE: tsconfig.json
 {
   "compilerOptions": {
     "target": "ES2017",
@@ -31,13 +32,16 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "prisma/**/*.ts",
+    "prisma.config.ts",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    ".next/dev"
   ]
 }

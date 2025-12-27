@@ -1,8 +1,21 @@
 // FILE: prisma/seed.ts
 
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const prisma = new PrismaClient();
+function createPrismaClient(): PrismaClient {
+    const databaseUrl = process.env.DATABASE_URL;
+
+    if (!databaseUrl) {
+        throw new Error("DATABASE_URL is missing. Please set it in your .env file.");
+    }
+
+    const adapter = new PrismaPg({ connectionString: databaseUrl });
+    return new PrismaClient({ adapter });
+}
+
+const prisma = createPrismaClient();
 
 async function main() {
     // Delete existing data (for clean seed)
@@ -76,7 +89,7 @@ I welcome the opportunity to discuss how I can contribute to your project.`,
 }
 
 main()
-    .catch((e) => {
+    .catch((e: unknown) => {
         console.error(e);
         process.exit(1);
     })
