@@ -1,145 +1,105 @@
-# next-tailwind-base
+# PDN - Problem Discovery Network
 
-Next.js 16 + React 19 + TypeScript 5 + Tailwind CSS v4 の最小UIテンプレート。
-テンプレから新規プロジェクトを素早く起こすためのベースです。
+Copy-first solution templates for common problems. No sign-up required.
 
-* GitHub: [https://github.com/KU1244/next-tailwind-base](https://github.com/KU1244/next-tailwind-base)
+## Quick Start
 
----
-
-## 技術スタック
-
-* **Next.js** 16.0.1（App Router / Turbopack）
-* **React** 19
-* **TypeScript** 5
-* **Tailwind CSS** 4（`@tailwindcss/postcss`）
-* **ESLint**（`eslint-config-next`）
-* **Import Alias**: `@/*` → `src/` をルートとして参照
-
-## はじめかた（ローカル）
+### 1. Install dependencies
 
 ```bash
-# 依存インストール
 npm install
-
-# 開発起動
-npm run dev   # http://localhost:3000
-
-# 本番ビルド → 起動
-npm run build
-npm start
 ```
 
-> 推奨 Node.js: **20+**
-
----
-
-## テンプレから新規プロジェクトを作る流れ
-
-テンプレートを“乱用”するための標準手順を2通り用意しています。
-
-### 方式1: GitHubの「Use this template」を使う（推奨）
-
-1. このリポジトリ（`KU1244/next-tailwind-base`）を **Template Repository** に設定
-
-    * GitHub → Settings → General → **Template repository** にチェック
-2. 右上の **Use this template** から **新しいリポジトリ**を作成
-3. ローカルで clone して開発開始
-
-**メリット**: 履歴は新規リポのものから開始。シンプルで安全。
-
-### 方式2: クローン→履歴切り離し→新リポに紐づけ（手動）
+### 2. Set up environment
 
 ```bash
-# ① テンプレを新プロジェクト名でクローン
-git clone git@github.com:KU1244/next-tailwind-base.git my-new-project
-cd my-new-project
-
-# ② 履歴を切り離し（テンプレの .git を削除）
-rm -rf .git
-
-# ③ 自分の履歴で再初期化
-git init
-git add .
-git commit -m "chore: scaffold from next-tailwind-base"
-
-# ④ 新リポに接続して初回プッシュ
-git branch -M main
-git remote add origin git@github.com:<your-org-or-user>/<new-repo>.git
-git push -u origin main
+cp .env.example .env
+# Edit .env with your PostgreSQL connection string
 ```
 
-**メモ**: 完全に独立したい場合に有効。テンプレ側の履歴は持ち込まれません。
+### 3. Set up database
 
-### 新規プロジェクト用チェックリスト
+```bash
+npm run db:generate   # Generate Prisma client
+npm run db:push       # Push schema to database
+npm run db:seed       # Seed initial data
+```
 
-* `package.json` の `name` を新プロジェクト名に変更
-* `README.md` のタイトル／リポURLを差し替え
-* ライセンスや著作権表記を更新（必要なら）
-* Node 20+ で動作確認 → 依存導入 → 開発起動
+### 4. Run development server
 
-### 運用の小技
+```bash
+npm run dev
+```
 
-* **タグ運用**: テンプレ側で `v0.1.0` などタグを切っておくと、開始時点を記録しやすい
-* **アップストリーム追随（任意）**:
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-  ```bash
-  git remote add upstream git@github.com:KU1244/next-tailwind-base.git
-  git fetch upstream
-  git merge upstream/main   # or: git rebase upstream/main
-  ```
-
-  ※ 新規プロジェクトを完全独立運用するなら upstream の追加は不要。
-
----
-
-## ディレクトリ（初期想定）
+## Project Structure
 
 ```
 src/
-  app/
-    layout.tsx
-    page.tsx
-    globals.css
-  components/
-    TestBox.tsx
-postcss.config.mjs
-tsconfig.json
+├── app/
+│   ├── page.tsx                          # Redirects to /problems
+│   ├── layout.tsx                        # Root layout
+│   ├── globals.css                       # Global styles
+│   ├── problems/
+│   │   ├── page.tsx                      # Problem list page
+│   │   └── [slug]/
+│   │       └── page.tsx                  # Problem detail page
+│   └── api/
+│       ├── problems/
+│       │   └── route.ts                  # GET /api/problems
+│       └── solutions/
+│           └── [id]/
+│               ├── copy/
+│               │   └── route.ts          # POST - increment copyCount
+│               └── feedback/
+│                   └── route.ts          # POST - submit feedback
+├── components/
+│   └── pdn/
+│       ├── problems/
+│       │   └── ProblemsListView.tsx      # Problem list UI
+│       └── problem-detail/
+│           ├── ProblemDetail.tsx         # Container (state, handlers)
+│           ├── ProblemDetailView.tsx     # View (props only)
+│           └── SolutionCardView.tsx      # Solution card with feedback
+├── hooks/
+│   ├── useClipboard.ts                   # Copy to clipboard + API
+│   └── useFeedback.ts                    # Feedback with localStorage dedup
+└── lib/
+    ├── prisma.ts                         # Prisma client singleton
+    └── pdn/
+        ├── queries.ts                    # Database queries & mutations
+        └── types.ts                      # TypeScript types
 ```
 
-## Tailwind v4 のポイント
+## Features
 
-* `postcss.config.mjs` に `@tailwindcss/postcss` を設定
-* `app/globals.css` は v4 スタイルで記述（旧 `@tailwind base/components/utilities` は不要）
+- **Copy-first UX**: Users copy templates instantly, no sign-up required
+- **Feedback tracking**: Tried / Client replied / No change / Need shorter
+- **localStorage deduplication**: One feedback per solution per day
+- **Dark mode**: Automatic based on system preference
 
-```css
-/* app/globals.css の例 */
-@import "tailwindcss";
-@theme {
-  --font-sans: "Inter", sans-serif;
-  --color-brand: oklch(60% 0.2 250);
-}
-html, body {
-  font-family: var(--font-sans);
-}
-```
+## API Endpoints
 
-## TypeScript 設定の要点
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /api/problems | List published problems with totals |
+| POST | /api/solutions/[id]/copy | Increment copy count |
+| POST | /api/solutions/[id]/feedback | Submit feedback (tried/worked/noChange/needShorter) |
 
-* `baseUrl: "."`、`paths: { "@/*": ["./src/*"] }`
-* Next.js が起動時に `jsx: "react-jsx"` へ自動補正
-
-## npm スクリプト
+## Database Commands
 
 ```bash
-npm run dev     # 開発サーバ
-npm run build   # 本番ビルド
-npm start       # 本番起動
-npm run lint    # ESLint
+npm run db:generate   # Generate Prisma client
+npm run db:push       # Push schema changes
+npm run db:seed       # Seed data
+npm run db:studio     # Open Prisma Studio
 ```
 
----
+## Tech Stack
 
-## ライセンス
-
-プロジェクト要件に応じて追記してください。
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript (strict)
+- **Styling**: Tailwind CSS v4
+- **Database**: PostgreSQL + Prisma 7
+- **Runtime**: React 19
